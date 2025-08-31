@@ -35,20 +35,8 @@ pub struct Theme {
 }
 
 impl Theme {
-    pub fn init(cx: &mut App) -> anyhow::Result<()> {
-        let asset_source = cx.asset_source();
-        let fonts_path = asset_source.list("fonts")?;
-
-        let font_bytes = fonts_path
-            .iter()
-            .filter(|path| path.ends_with(".ttf"))
-            .filter_map(|path| asset_source.load(&format!("fonts/{path}")).unwrap())
-            .collect::<Vec<_>>();
-
-        cx.text_system().add_fonts(font_bytes)?;
-        cx.set_global(Theme::default());
-
-        Ok(())
+    pub fn init(cx: &mut App) {
+        cx.set_global(Theme::default())
     }
 }
 
