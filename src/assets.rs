@@ -4,6 +4,7 @@ use gpui::{App, AssetSource, SharedString};
 #[derive(rust_embed::RustEmbed)]
 #[folder = "./assets"]
 #[include = "fonts/**/*"]
+#[include = "icons/**/*"]
 #[exclude = "readme/**/*"]
 pub struct Assets;
 

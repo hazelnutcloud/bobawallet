@@ -1,6 +1,7 @@
+use gpui::prelude::*;
 use gpui::{Render, Styled, div};
-use gpui::{Rgba, prelude::*};
 
+use crate::components::{CommandPalette, Footer, Header};
 use crate::theme::Theme;
 
 pub struct Panel {}
@@ -17,6 +18,10 @@ impl Render for Panel {
         _window: &mut gpui::Window,
         cx: &mut gpui::Context<Self>,
     ) -> impl gpui::IntoElement {
+        let header = cx.new(|_| Header);
+        let command_palette = cx.new(|_| CommandPalette);
+        let footer = cx.new(|_| Footer);
+
         let theme = cx.global::<Theme>();
 
         div()
@@ -26,21 +31,7 @@ impl Render for Panel {
             .justify_start()
             .bg(theme.variables.base_200)
             .font_family("Berkeley Mono")
-            .child(
-                div()
-                    .flex()
-                    .w_full()
-                    .items_center()
-                    .p_3()
-                    .bg(theme.variables.base_100)
-                    .text_color(Rgba {
-                        a: 0.7,
-                        ..theme.variables.base_content
-                    })
-                    .child("boba")
-                    .child(div().flex_1())
-                    .child("0xd2Be6...E1Bc3"),
-            )
+            .child(header)
             .child(
                 div()
                     .flex()
@@ -48,26 +39,10 @@ impl Render for Panel {
                     .items_center()
                     .p_3()
                     .justify_start()
-                    .flex_1(),
-            )
-            .child(
-                div()
-                    .flex()
+                    .flex_1()
                     .w_full()
-                    .items_center()
-                    .p_3()
-                    .text_xs()
-                    .bg(theme.variables.base_100)
-                    .text_color(Rgba {
-                        a: 0.7,
-                        ..theme.variables.base_content
-                    })
-                    .gap_2()
-                    .child("home")
-                    .child(div().flex_1())
-                    .child("mainnet")
-                    .child(div().size_2().rounded_full().bg(theme.variables.success))
-                    .child("localhost:1248"),
+                    .child(command_palette),
             )
+            .child(footer)
     }
 }
