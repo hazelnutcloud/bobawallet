@@ -1,13 +1,20 @@
-use gpui::{Entity, Window, prelude::*};
+use gpui::{AnyView, App, Entity, Focusable, KeyBinding, Window, actions, prelude::*};
 use gpui::{Render, Styled, div};
 use gpui_component::{ActiveTheme, Root};
 
-use crate::components::{CommandPalette, Footer, Header};
+use crate::components::{AssetsView, CommandPalette, Footer, Header};
+
+actions!([Focus]);
+
+pub fn init(cx: &mut App) {
+    cx.bind_keys(vec![KeyBinding::new("secondary-k", Focus, None)]);
+}
 
 pub struct Panel {
     header: Entity<Header>,
     footer: Entity<Footer>,
     command_palette: Entity<CommandPalette>,
+    body: AnyView,
 }
 
 impl Panel {
@@ -15,12 +22,18 @@ impl Panel {
         let header = cx.new(|_| Header);
         let footer = cx.new(|_| Footer);
         let command_palette = cx.new(|cx| CommandPalette::new(window, cx));
+        let default_body = cx.new(|cx| AssetsView::new(window, cx));
 
         Self {
             header,
             footer,
             command_palette,
+            body: default_body.into(),
         }
+    }
+
+    fn on_action_focus(&mut self, _: &Focus, window: &mut Window, cx: &mut Context<Self>) {
+        window.focus(&self.command_palette.focus_handle(cx));
     }
 }
 
@@ -37,6 +50,9 @@ impl Render for Panel {
         let theme = cx.theme();
 
         div()
+            .id("panel")
+            .track_focus(&self.command_palette.focus_handle(cx))
+            .on_action(cx.listener(Self::on_action_focus))
             .size_full()
             .flex()
             .flex_col()
@@ -49,11 +65,11 @@ impl Render for Panel {
                     .flex()
                     .flex_col()
                     .items_center()
-                    .p_2()
                     .justify_start()
                     .flex_1()
                     .w_full()
-                    .child(self.command_palette.clone()),
+                    .child(self.command_palette.clone())
+                    .child(self.body.clone()),
             )
             .child(self.footer.clone())
             .children(drawer_layer)

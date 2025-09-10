@@ -1,6 +1,6 @@
 use std::time::Duration;
 
-use bobawallet::{Assets, Panel};
+use bobawallet::{Assets, Panel, panel};
 use global_hotkey::{
     GlobalHotKeyEvent, GlobalHotKeyManager, HotKeyState,
     hotkey::{Code, HotKey, Modifiers},
@@ -21,7 +21,7 @@ impl AppState {
         cx.set_global(state);
     }
 
-    fn toggle_hide(cx: &mut App) {
+    fn toggle_hide(cx: &mut App) -> bool {
         cx.update_global(|state: &mut Self, cx| {
             state.is_hidden = !state.is_hidden;
             if state.is_hidden {
@@ -29,7 +29,8 @@ impl AppState {
             } else {
                 cx.activate(true);
             }
-        });
+            state.is_hidden
+        })
     }
 }
 
@@ -55,6 +56,7 @@ pub fn main() {
 
     Application::new().with_assets(Assets).run(move |cx| {
         gpui_component::init(cx);
+        panel::init(cx);
 
         Assets.load_fonts(cx).unwrap();
         AppState::init(cx);

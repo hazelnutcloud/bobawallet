@@ -39,7 +39,9 @@ impl Render for Footer {
                     .ghost()
                     .xsmall()
                     .popup_menu(|this, _, _| {
-                        this.menu("rise", Box::new(SelectChain { chain_id: 11535 }))
+                        this.label("switch chain")
+                            .separator()
+                            .menu("rise", Box::new(SelectChain { chain_id: 11535 }))
                     })
                     .anchor(gpui::Corner::BottomLeft),
             )
@@ -49,7 +51,11 @@ impl Render for Footer {
                     .child("localhost:1248")
                     .ghost()
                     .xsmall()
-                    .popup_menu(|this, _, _| this.menu("restart server", Box::new(Restart)))
+                    .popup_menu(|this, _, _| {
+                        this.label("rpc server")
+                            .separator()
+                            .menu("restart server", Box::new(Restart))
+                    })
                     .anchor(gpui::Corner::BottomRight),
             )
     }
