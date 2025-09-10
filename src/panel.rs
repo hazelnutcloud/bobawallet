@@ -1,48 +1,63 @@
-use gpui::prelude::*;
+use gpui::{Entity, Window, prelude::*};
 use gpui::{Render, Styled, div};
+use gpui_component::{ActiveTheme, Root};
 
 use crate::components::{CommandPalette, Footer, Header};
-use crate::theme::Theme;
 
-pub struct Panel {}
+pub struct Panel {
+    header: Entity<Header>,
+    footer: Entity<Footer>,
+    command_palette: Entity<CommandPalette>,
+}
 
 impl Panel {
-    pub fn new() -> Self {
-        Self {}
+    pub fn new(window: &mut Window, cx: &mut Context<Self>) -> Self {
+        let header = cx.new(|_| Header);
+        let footer = cx.new(|_| Footer);
+        let command_palette = cx.new(|cx| CommandPalette::new(window, cx));
+
+        Self {
+            header,
+            footer,
+            command_palette,
+        }
     }
 }
 
 impl Render for Panel {
     fn render(
         &mut self,
-        _window: &mut gpui::Window,
+        window: &mut gpui::Window,
         cx: &mut gpui::Context<Self>,
     ) -> impl gpui::IntoElement {
-        let header = cx.new(|_| Header);
-        let command_palette = cx.new(|_| CommandPalette);
-        let footer = cx.new(|_| Footer);
+        let drawer_layer = Root::render_drawer_layer(window, cx);
+        let modal_layer = Root::render_modal_layer(window, cx);
+        let notification_layer = Root::render_notification_layer(window, cx);
 
-        let theme = cx.global::<Theme>();
+        let theme = cx.theme();
 
         div()
             .size_full()
             .flex()
             .flex_col()
             .justify_start()
-            .bg(theme.variables.base_200)
+            .bg(theme.background)
             .font_family("Berkeley Mono")
-            .child(header)
+            .child(self.header.clone())
             .child(
                 div()
                     .flex()
                     .flex_col()
                     .items_center()
-                    .p_3()
+                    .p_2()
                     .justify_start()
                     .flex_1()
                     .w_full()
-                    .child(command_palette),
+                    .child(self.command_palette.clone()),
             )
-            .child(footer)
+            .child(self.footer.clone())
+            .children(drawer_layer)
+            .children(modal_layer)
+            .children(notification_layer)
     }
 }

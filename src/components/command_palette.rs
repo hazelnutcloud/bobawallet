@@ -1,34 +1,34 @@
-use gpui::prelude::*;
-use gpui::{Render, Rgba, Window, div};
+use gpui::{Entity, Focusable, prelude::*};
+use gpui::{Render, Window, div};
+use gpui_component::input::{InputState, TextInput};
 
-use crate::theme::Theme;
+pub struct CommandPalette {
+    input_state: Entity<InputState>,
+}
 
-pub struct CommandPalette;
+impl CommandPalette {
+    pub fn new(window: &mut Window, cx: &mut Context<Self>) -> Self {
+        let input_state = cx.new(|cx| {
+            InputState::new(window, cx)
+                .placeholder("> search / commands")
+                .clean_on_escape()
+        });
+        Self { input_state }
+    }
+}
+
+impl Focusable for CommandPalette {
+    fn focus_handle(&self, cx: &gpui::App) -> gpui::FocusHandle {
+        self.input_state.focus_handle(cx)
+    }
+}
 
 impl Render for CommandPalette {
-    fn render(&mut self, _window: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
-        let theme = cx.global::<Theme>();
-
+    fn render(&mut self, _window: &mut Window, _cx: &mut Context<Self>) -> impl IntoElement {
         div().w_full().p_2().child(
-            div()
-                .flex()
-                .w_full()
-                .rounded(theme.variables.radius_field)
-                .px_4()
-                .py_2()
-                .items_center()
-                .justify_between()
-                .border_color(Rgba {
-                    a: 0.2,
-                    ..theme.variables.base_content
-                })
-                .text_color(Rgba {
-                    a: 0.2,
-                    ..theme.variables.base_content
-                })
-                .border_1()
-                .child("> search / commands")
-                .child("cmd+k"),
+            TextInput::new(&self.input_state)
+                .cleanable()
+                .suffix("cmd+k"),
         )
     }
 }

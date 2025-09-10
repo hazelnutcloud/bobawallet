@@ -5,6 +5,7 @@ use gpui::{App, AssetSource, SharedString};
 #[folder = "./assets"]
 #[include = "fonts/**/*"]
 #[include = "icons/**/*"]
+#[include = "images/**/*"]
 #[exclude = "readme/**/*"]
 pub struct Assets;
 

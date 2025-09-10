@@ -1,14 +1,15 @@
 use std::time::Duration;
 
-use bobawallet::{Assets, Panel, theme::Theme};
+use bobawallet::{Assets, Panel};
 use global_hotkey::{
     GlobalHotKeyEvent, GlobalHotKeyManager, HotKeyState,
     hotkey::{Code, HotKey, Modifiers},
 };
 use gpui::{
     App, Application, Bounds, Edges, Global, Timer, TitlebarOptions, WindowBounds, WindowKind,
-    WindowOptions, point, prelude::*, px, size,
+    WindowOptions, actions, point, prelude::*, px, size,
 };
+use gpui_component::Root;
 
 struct AppState {
     is_hidden: bool,
@@ -34,6 +35,8 @@ impl AppState {
 
 impl Global for AppState {}
 
+actions!(window, [ToggleHide]);
+
 pub fn main() {
     // setup global hotkey
     let manager = GlobalHotKeyManager::new().unwrap();
@@ -51,9 +54,10 @@ pub fn main() {
     });
 
     Application::new().with_assets(Assets).run(move |cx| {
+        gpui_component::init(cx);
+
         Assets.load_fonts(cx).unwrap();
         AppState::init(cx);
-        Theme::init(cx);
 
         cx.spawn(async move |cx| {
             loop {
@@ -61,7 +65,7 @@ pub fn main() {
                     && event.state() == HotKeyState::Pressed
                 {
                     cx.update(|cx| {
-                        AppState::toggle_hide(cx);
+                        cx.dispatch_action(&ToggleHide);
                     })
                     .ok();
                 }
@@ -70,6 +74,10 @@ pub fn main() {
             }
         })
         .detach();
+
+        cx.on_action(|_: &ToggleHide, cx| {
+            AppState::toggle_hide(cx);
+        });
 
         let bounds = match cx.primary_display() {
             Some(display) => display.bounds().extend(Edges {
@@ -93,7 +101,10 @@ pub fn main() {
                 kind: WindowKind::PopUp,
                 ..Default::default()
             },
-            |_, cx| cx.new(|_| Panel::new()),
+            |window, cx| {
+                let panel = cx.new(|cx| Panel::new(window, cx));
+                cx.new(|cx| Root::new(panel.into(), window, cx))
+            },
         )
         .unwrap();
 
