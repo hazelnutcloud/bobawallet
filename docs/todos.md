@@ -1,0 +1,8 @@
+- [x] config file
+- [x] accounts config
+- [ ] chains config
+- [ ] assets config
+- [ ] high level error handling
+- [ ] higher level daisyui based theming
+- [ ] RPC server
+- [ ] assets tracking

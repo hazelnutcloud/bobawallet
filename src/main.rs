@@ -1,6 +1,6 @@
 use std::time::Duration;
 
-use bobawallet::{Assets, Panel, panel};
+use bobawallet::{Assets, Panel, config, panel};
 use global_hotkey::{
     GlobalHotKeyEvent, GlobalHotKeyManager, HotKeyState,
     hotkey::{Code, HotKey, Modifiers},
@@ -56,6 +56,7 @@ pub fn main() {
 
     Application::new().with_assets(Assets).run(move |cx| {
         gpui_component::init(cx);
+        config::init(cx);
         panel::init(cx);
 
         Assets.load_fonts(cx).unwrap();
